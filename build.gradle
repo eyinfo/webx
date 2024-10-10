@@ -20,6 +20,7 @@ dependencies {
     api 'com.eyinfo:spring-cache:1.0.43'
     api 'org.springframework.boot:spring-boot-starter-web:3.2.10'
     api 'jakarta.validation:jakarta.validation-api:3.0.2'
+    api 'org.hibernate.validator:hibernate-validator:8.0.1.Final'
     api 'com.squareup.okhttp3:okhttp:3.10.0'
     api 'net.coobird:thumbnailator:0.4.20'
     api 'com.drewnoakes:metadata-extractor:2.18.0'
