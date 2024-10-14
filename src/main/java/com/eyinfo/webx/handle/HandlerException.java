@@ -4,6 +4,7 @@ import com.eyinfo.foundation.CommonException;
 import com.eyinfo.foundation.utils.CrashUtils;
 import com.eyinfo.foundation.utils.ObjectJudge;
 import com.eyinfo.foundation.utils.TextUtils;
+import com.eyinfo.webx.entity.HandleExceptionPrompt;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Path;
@@ -42,6 +43,10 @@ public abstract class HandlerException {
         return null;
     }
 
+    protected HandleExceptionPrompt getExceptionPrompt() {
+        return new HandleExceptionPrompt();
+    }
+
     @ExceptionHandler
     @ResponseBody
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -50,22 +55,23 @@ public abstract class HandlerException {
         if (preHandleException != null) {
             return preHandleException;
         }
+        HandleExceptionPrompt exceptionPrompt = getExceptionPrompt();
         if (e instanceof HttpRequestMethodNotSupportedException exception) {
             String[] methods = exception.getSupportedMethods();
-            String message = String.format("接口仅支持【%s】请求", getSupportMethods(methods));
+            String message = String.format(exceptionPrompt.getSupportMethods(), getSupportMethods(methods));
             return onMessageHandler(3014, message, true);
         }
         if (e instanceof HttpMediaTypeNotSupportedException exception) {
             MediaType contentType = exception.getContentType();
-            String message = String.format("接口contentType不支持【%s】请求", contentType);
+            String message = String.format(exceptionPrompt.getContentTypeNotSupported(), contentType);
             return onMessageHandler(3015, message, true);
         }
         if (e instanceof MissingServletRequestParameterException msrp) {
-            String message = String.format("参数%s缺省", msrp.getParameterName());
+            String message = String.format(exceptionPrompt.getParameterMissing(), msrp.getParameterName());
             return onMessageHandler(702, message, true);
         }
         if (e instanceof MissingRequestHeaderException mrh) {
-            String message = String.format("参数%s缺省", mrh.getHeaderName());
+            String message = String.format(exceptionPrompt.getParameterMissing(), mrh.getHeaderName());
             return onMessageHandler(702, message, true);
         }
         StringBuilder builder = new StringBuilder();
@@ -104,10 +110,7 @@ public abstract class HandlerException {
             return onMessageHandler(3017, builder.toString(), true);
         }
         if (e instanceof HttpMessageNotReadableException re) {
-            String message = re.getMessage();
-            if (!TextUtils.isEmpty(message)) {
-                return onMessageHandler(3018, message.split(";")[0], false);
-            }
+            return onMessageHandler(3018, exceptionPrompt.getBodyMissing(), false);
         }
         if (e instanceof CommonException ce) {
             return onMessageHandler(ce.getCode(), CrashUtils.getMessage(ce), false);
