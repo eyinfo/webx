@@ -16,8 +16,8 @@ java {
 }
 
 dependencies {
-    api 'com.eyinfo:foundation:1.0.26'
-    api 'com.eyinfo:spring-cache:1.0.43'
+    api 'com.eyinfo:foundation:1.0.31'
+    api 'com.eyinfo:spring-cache:1.0.47'
     api 'org.springframework.boot:spring-boot-starter-web:3.2.10'
     api 'jakarta.validation:jakarta.validation-api:3.0.2'
     api 'org.hibernate.validator:hibernate-validator:8.0.1.Final'
