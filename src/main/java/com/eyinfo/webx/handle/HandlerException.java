@@ -1,10 +1,11 @@
 package com.eyinfo.webx.handle;
 
 import com.eyinfo.foundation.CommonException;
+import com.eyinfo.foundation.entity.BaseResponse;
+import com.eyinfo.foundation.entity.Result;
 import com.eyinfo.foundation.utils.CrashUtils;
 import com.eyinfo.foundation.utils.ObjectJudge;
 import com.eyinfo.foundation.utils.TextUtils;
-import com.eyinfo.webx.entity.HandleExceptionPrompt;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Path;
@@ -30,21 +31,25 @@ import java.util.Set;
 public abstract class HandlerException {
 
     /**
-     * 异常消息处理
+     * 异常消息回调
      *
      * @param code    异常编号
      * @param message 提示消息或异常详情
-     * @param trigger true-自定义内部异常消息（可提示）;false-程序详细异常；
-     * @return 继承BaseResponse对象
      */
-    protected abstract Object onMessageHandler(int code, String message, boolean trigger);
+    public void onError(int code, String message) {
+        // 记录异常信息
+    }
 
     protected Object onPreHandleException(Exception e) {
         return null;
     }
 
-    protected HandleExceptionPrompt getExceptionPrompt() {
-        return new HandleExceptionPrompt();
+    private BaseResponse getExceptionMessage(String messageKey, String replace) {
+        BaseResponse message = Result.message(messageKey);
+        if (!TextUtils.isEmpty(replace)) {
+            message.setMsg(String.format(message.getMsg(), replace));
+        }
+        return message;
     }
 
     @ExceptionHandler
@@ -55,24 +60,19 @@ public abstract class HandlerException {
         if (preHandleException != null) {
             return preHandleException;
         }
-        HandleExceptionPrompt exceptionPrompt = getExceptionPrompt();
         if (e instanceof HttpRequestMethodNotSupportedException exception) {
             String[] methods = exception.getSupportedMethods();
-            String message = String.format(exceptionPrompt.getSupportMethods(), getSupportMethods(methods));
-            return onMessageHandler(3014, message, true);
+            return getExceptionMessage("supportMethods", getSupportMethods(methods));
         }
         if (e instanceof HttpMediaTypeNotSupportedException exception) {
             MediaType contentType = exception.getContentType();
-            String message = String.format(exceptionPrompt.getContentTypeNotSupported(), contentType);
-            return onMessageHandler(3015, message, true);
+            return getExceptionMessage("contentTypeNotSupported", contentType != null ? contentType.toString() : null);
         }
         if (e instanceof MissingServletRequestParameterException msrp) {
-            String message = String.format(exceptionPrompt.getParameterMissing(), msrp.getParameterName());
-            return onMessageHandler(702, message, true);
+            return getExceptionMessage("parameterMissing", msrp.getParameterName());
         }
         if (e instanceof MissingRequestHeaderException mrh) {
-            String message = String.format(exceptionPrompt.getParameterMissing(), mrh.getHeaderName());
-            return onMessageHandler(702, message, true);
+            return getExceptionMessage("parameterMissing", mrh.getHeaderName());
         }
         StringBuilder builder = new StringBuilder();
         if (e instanceof BindException be) {
@@ -80,14 +80,18 @@ public abstract class HandlerException {
             for (FieldError error : errors) {
                 builder.append(error.getField()).append(":").append(error.getDefaultMessage()).append(";");
             }
-            return onMessageHandler(3016, builder.toString(), true);
+            BaseResponse response = Result.message("globalServerError");
+            onError(response.getCode(), builder.toString());
+            return response;
         }
         if (e instanceof WebExchangeBindException be) {
             List<FieldError> errors = be.getFieldErrors();
             for (FieldError error : errors) {
                 builder.append(error.getField()).append(":").append(error.getDefaultMessage()).append(";");
             }
-            return onMessageHandler(3016, builder.toString(), true);
+            BaseResponse response = Result.message("globalServerError");
+            onError(response.getCode(), builder.toString());
+            return response;
         }
         if (e instanceof ConstraintViolationException constraintViolationException) {
             Set<ConstraintViolation<?>> constraintViolations = constraintViolationException.getConstraintViolations();
@@ -107,28 +111,34 @@ public abstract class HandlerException {
                 }
                 position++;
             }
-            return onMessageHandler(3017, builder.toString(), true);
+            BaseResponse response = Result.message("globalServerError");
+            onError(response.getCode(), builder.toString());
+            return response;
         }
         if (e instanceof HttpMessageNotReadableException re) {
-            return onMessageHandler(3018, exceptionPrompt.getBodyMissing(), false);
+            return getExceptionMessage("bodyMissing", null);
         }
         if (e instanceof CommonException ce) {
-            return onMessageHandler(ce.getCode(), CrashUtils.getMessage(ce), false);
+            onError(ce.getCode(), CrashUtils.getMessage(ce));
+            return Result.message("globalServerError");
         }
         if (e instanceof NoHandlerFoundException foundException) {
-            return onMessageHandler(404, foundException.getMessage(), false);
+            onError(404, foundException.getMessage());
+            return Result.message("globalServerError");
         }
         if (e instanceof InvocationTargetException targetException) {
             Throwable throwable = targetException.getTargetException();
-            return onMessageHandler(500, throwable.getMessage(), false);
+            onError(500, throwable.getMessage());
+            return Result.message("globalServerError");
         }
         String message = e.getMessage();
         if (TextUtils.isEmpty(message)) {
             Throwable throwable = e.getCause();
-            return onMessageHandler(400, throwable.getMessage(), false);
-        } else {
-            return onMessageHandler(400, e.getMessage(), false);
+            message = throwable.getMessage();
         }
+        BaseResponse response = Result.message("globalServerError");
+        onError(response.getCode(), message);
+        return response;
     }
 
     private String getSupportMethods(String[] methods) {
