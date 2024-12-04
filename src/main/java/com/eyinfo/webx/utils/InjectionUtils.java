@@ -1,0 +1,21 @@
+package com.eyinfo.webx.utils;
+
+import org.springframework.web.servlet.HandlerInterceptor;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class InjectionUtils {
+
+    private static final List<HandlerInterceptor> interceptors = new ArrayList<>();
+
+    private static final List<Runnable> applicationRunners = new ArrayList<>();
+
+    public static List<HandlerInterceptor> getInterceptors() {
+        return interceptors;
+    }
+
+    public static List<Runnable> getApplicationRunners() {
+        return applicationRunners;
+    }
+}
