@@ -1,4 +1,4 @@
-package com.eyinfo.webx.config;
+package com.eyinfo.webx;
 
 import com.eyinfo.foundation.entity.Result;
 import com.eyinfo.webx.handle.DefaultMessageHandle;

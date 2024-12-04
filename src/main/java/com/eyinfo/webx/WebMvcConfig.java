@@ -1,4 +1,4 @@
-package com.eyinfo.webx.config;
+package com.eyinfo.webx;
 
 import com.eyinfo.foundation.utils.ObjectJudge;
 import com.eyinfo.webx.utils.CorsUtils;
