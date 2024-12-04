@@ -22,6 +22,7 @@ public class DefaultMessageHandle {
         map.put("routeAssertNotConfig", new BaseResponse(20010, "没有配置路由断言"));
         map.put("apiAccountLose", new BaseResponse(20011, "appId或secret无效"));
         map.put("routeFilterNotConfig", new BaseResponse(20012, "没有配置路由过滤器"));
+        map.put("userNoLogin", new BaseResponse(20013, "用户未登录"));
         return map;
     }
 }
