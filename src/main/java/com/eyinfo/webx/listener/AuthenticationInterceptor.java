@@ -6,6 +6,7 @@ import com.eyinfo.foundation.enums.VerifyType;
 import com.eyinfo.foundation.events.Func2;
 import com.eyinfo.foundation.utils.JsonUtils;
 import com.eyinfo.foundation.utils.TextUtils;
+import com.eyinfo.webx.annotations.ConfigurationInterceptor;
 import com.eyinfo.webx.store.UserStore;
 import com.eyinfo.webx.utils.InjectionUtils;
 import com.eyinfo.webx.utils.RequestLocalUtils;
@@ -16,6 +17,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.io.PrintWriter;
 
+@ConfigurationInterceptor
 public class AuthenticationInterceptor implements HandlerInterceptor {
 
     private String getUserToken(HttpServletRequest request, VerifyType verify) {
