@@ -32,7 +32,8 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse servletResponse, Object handler) throws Exception {
-        RequestLocalUtils.setToken(this.getUserToken(request, VerifyType.both));
+        String token = this.getUserToken(request, VerifyType.both);
+        RequestLocalUtils.setToken(token);
         if (!(handler instanceof HandlerMethod)) {
             return true;
         } else {
@@ -40,11 +41,11 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
             AccessRequired access = handlerMethod.getMethodAnnotation(AccessRequired.class);
             if (access != null && access.required()) {
                 String verify = request.getHeader("verify");
-                Func2<Boolean, HttpServletRequest, VerifyType> authenticationVerifyFunc = InjectionUtils.getAuthenticationVerifyFunc();
+                Func2<Boolean, HttpServletRequest, String> authenticationVerifyFunc = InjectionUtils.getAuthenticationVerifyFunc();
                 if (authenticationVerifyFunc == null) {
                     return true;
                 }
-                if (!TextUtils.equals(verify, "pass") && !authenticationVerifyFunc.call(request, access.verify())) {
+                if (!TextUtils.equals(verify, "pass") && !authenticationVerifyFunc.call(request, token)) {
                     servletResponse.setCharacterEncoding("UTF-8");
                     servletResponse.setContentType("application/json");
                     PrintWriter writer = servletResponse.getWriter();

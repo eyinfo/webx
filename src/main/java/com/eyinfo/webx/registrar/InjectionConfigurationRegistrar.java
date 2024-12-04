@@ -39,7 +39,7 @@ public class InjectionConfigurationRegistrar implements ImportBeanDefinitionRegi
             Constructor<?> constructor = injectClass.getDeclaredConstructor();
             Object instance = constructor.newInstance();
             if (instance instanceof Func2<?,?,?>) {
-                InjectionUtils.setAuthenticationVerifyFunc((Func2<Boolean, HttpServletRequest, VerifyType>) instance);
+                InjectionUtils.setAuthenticationVerifyFunc((Func2<Boolean, HttpServletRequest, String>) instance);
             }
         } catch (Exception e) {
             e.printStackTrace();

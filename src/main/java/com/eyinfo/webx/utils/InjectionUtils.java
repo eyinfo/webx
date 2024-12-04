@@ -14,7 +14,7 @@ public class InjectionUtils {
 
     private static final List<Runnable> applicationRunners = new ArrayList<>();
 
-    private static Func2<Boolean, HttpServletRequest, VerifyType> authenticationVerifyFunc = null;
+    private static Func2<Boolean, HttpServletRequest, String> authenticationVerifyFunc = null;
 
     public static List<HandlerInterceptor> getInterceptors() {
         return interceptors;
@@ -24,11 +24,11 @@ public class InjectionUtils {
         return applicationRunners;
     }
 
-    public static void setAuthenticationVerifyFunc(Func2<Boolean, HttpServletRequest, VerifyType> authenticationVerifyFunc) {
+    public static void setAuthenticationVerifyFunc(Func2<Boolean, HttpServletRequest, String> authenticationVerifyFunc) {
         InjectionUtils.authenticationVerifyFunc = authenticationVerifyFunc;
     }
 
-    public static Func2<Boolean, HttpServletRequest, VerifyType> getAuthenticationVerifyFunc() {
+    public static Func2<Boolean, HttpServletRequest, String> getAuthenticationVerifyFunc() {
         return authenticationVerifyFunc;
     }
 }
