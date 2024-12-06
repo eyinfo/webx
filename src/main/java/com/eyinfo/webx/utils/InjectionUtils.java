@@ -1,8 +1,7 @@
 package com.eyinfo.webx.utils;
 
-import com.eyinfo.foundation.enums.VerifyType;
-import com.eyinfo.foundation.events.Func2;
-import jakarta.servlet.http.HttpServletRequest;
+import com.eyinfo.webx.listener.AuthenticationVerifyInterceptor;
+import com.eyinfo.webx.listener.InitAwareInterceptor;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.util.ArrayList;
@@ -14,7 +13,9 @@ public class InjectionUtils {
 
     private static final List<Runnable> applicationRunners = new ArrayList<>();
 
-    private static Func2<Boolean, HttpServletRequest, String> authenticationVerifyFunc = null;
+    private static List<AuthenticationVerifyInterceptor> authenticationVerifyInterceptors = new ArrayList<>();
+
+    private static List<InitAwareInterceptor> initAwareInterceptors = new ArrayList<>();
 
     public static List<HandlerInterceptor> getInterceptors() {
         return interceptors;
@@ -24,11 +25,11 @@ public class InjectionUtils {
         return applicationRunners;
     }
 
-    public static void setAuthenticationVerifyFunc(Func2<Boolean, HttpServletRequest, String> authenticationVerifyFunc) {
-        InjectionUtils.authenticationVerifyFunc = authenticationVerifyFunc;
+    public static List<AuthenticationVerifyInterceptor> getAuthenticationVerifyInterceptors() {
+        return authenticationVerifyInterceptors;
     }
 
-    public static Func2<Boolean, HttpServletRequest, String> getAuthenticationVerifyFunc() {
-        return authenticationVerifyFunc;
+    public static List<InitAwareInterceptor> getInitAwareInterceptors() {
+        return initAwareInterceptors;
     }
 }

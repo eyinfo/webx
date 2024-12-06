@@ -3,8 +3,8 @@ package com.eyinfo.webx.listener;
 import com.eyinfo.foundation.annotations.AccessRequired;
 import com.eyinfo.foundation.entity.Result;
 import com.eyinfo.foundation.enums.VerifyType;
-import com.eyinfo.foundation.events.Func2;
 import com.eyinfo.foundation.utils.JsonUtils;
+import com.eyinfo.foundation.utils.ObjectJudge;
 import com.eyinfo.foundation.utils.TextUtils;
 import com.eyinfo.webx.annotations.ConfigurationInterceptor;
 import com.eyinfo.webx.store.UserStore;
@@ -16,6 +16,7 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.io.PrintWriter;
+import java.util.List;
 
 @ConfigurationInterceptor
 public class AuthenticationInterceptor implements HandlerInterceptor {
@@ -43,11 +44,18 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
             AccessRequired access = handlerMethod.getMethodAnnotation(AccessRequired.class);
             if (access != null && access.required()) {
                 String verify = request.getHeader("verify");
-                Func2<Boolean, HttpServletRequest, String> authenticationVerifyFunc = InjectionUtils.getAuthenticationVerifyFunc();
-                if (authenticationVerifyFunc == null) {
+                List<AuthenticationVerifyInterceptor> authenticationVerifyInterceptors = InjectionUtils.getAuthenticationVerifyInterceptors();
+                if (ObjectJudge.isNullOrEmpty(authenticationVerifyInterceptors) || TextUtils.equals(verify, "pass")) {
                     return true;
                 }
-                if (!TextUtils.equals(verify, "pass") && !authenticationVerifyFunc.call(request, token)) {
+                boolean flag = true;
+                for (AuthenticationVerifyInterceptor authenticationVerifyInterceptor : authenticationVerifyInterceptors) {
+                    if (!authenticationVerifyInterceptor.onVerify(request, token)) {
+                        flag = false;
+                        break;
+                    }
+                }
+                if (!flag) {
                     servletResponse.setCharacterEncoding("UTF-8");
                     servletResponse.setContentType("application/json");
                     PrintWriter writer = servletResponse.getWriter();
