@@ -1,5 +1,6 @@
 package com.eyinfo.webx.listener;
 
+import com.eyinfo.foundation.AtomicDefines;
 import com.eyinfo.foundation.annotations.AccessRequired;
 import com.eyinfo.foundation.entity.Result;
 import com.eyinfo.foundation.enums.VerifyType;
@@ -7,7 +8,6 @@ import com.eyinfo.foundation.utils.JsonUtils;
 import com.eyinfo.foundation.utils.ObjectJudge;
 import com.eyinfo.foundation.utils.TextUtils;
 import com.eyinfo.webx.annotations.ConfigurationInterceptor;
-import com.eyinfo.webx.store.UserStore;
 import com.eyinfo.webx.utils.InjectionUtils;
 import com.eyinfo.webx.utils.RequestLocalUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,11 +22,11 @@ import java.util.List;
 public class AuthenticationInterceptor implements HandlerInterceptor {
 
     private String getUserToken(HttpServletRequest request, VerifyType verify) {
-        String token = request.getHeader(UserStore.getInstance().tokenName);
+        String token = request.getHeader(AtomicDefines.authName);
         if (verify == VerifyType.header && !TextUtils.isEmpty(token)) {
             return token;
         }
-        String parameter = request.getParameter(UserStore.getInstance().tokenName);
+        String parameter = request.getParameter(AtomicDefines.authName);
         if (verify == VerifyType.param && !TextUtils.isEmpty(parameter)) {
             return parameter;
         }
