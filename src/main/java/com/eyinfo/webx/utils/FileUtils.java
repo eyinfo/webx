@@ -81,12 +81,6 @@ public class FileUtils {
         return null;
     }
 
-    /**
-     * 输入流转文件
-     *
-     * @param ins
-     * @param file
-     */
     public static File toFile(ServletContext servletContext, InputStream ins, String format) {
         BufferedOutputStream bos = null;
         BufferedInputStream bis = new BufferedInputStream(ins);
